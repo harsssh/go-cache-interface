@@ -7,11 +7,11 @@ import (
 	"github.com/redis/go-redis/v9"
 )
 
-type RedisCache[V any] struct {
+type redisCache[V any] struct {
 	rdb redis.Client
 }
 
-func (c *RedisCache[V]) Get(ctx context.Context, key string) (Maybe[V], error) {
+func (c *redisCache[V]) Get(ctx context.Context, key string) (Maybe[V], error) {
 	raw, err := c.rdb.Get(ctx, key).Result()
 	if err != nil {
 		if errors.Is(err, redis.Nil) {
@@ -29,7 +29,7 @@ func (c *RedisCache[V]) Get(ctx context.Context, key string) (Maybe[V], error) {
 	return Maybe[V]{Value: v, Found: true}, nil
 }
 
-func (c *RedisCache[V]) Set(ctx context.Context, key string, value V) error {
+func (c *redisCache[V]) Set(ctx context.Context, key string, value V) error {
 	b, err := json.MarshalContext(ctx, value)
 	if err != nil {
 		return err
@@ -43,7 +43,7 @@ func (c *RedisCache[V]) Set(ctx context.Context, key string, value V) error {
 	return nil
 }
 
-func (c *RedisCache[V]) Delete(ctx context.Context, key string) error {
+func (c *redisCache[V]) Delete(ctx context.Context, key string) error {
 	err := c.rdb.Del(ctx, key).Err()
 	if err != nil {
 		return err
@@ -51,10 +51,10 @@ func (c *RedisCache[V]) Delete(ctx context.Context, key string) error {
 	return nil
 }
 
-func (c *RedisCache[V]) Clear(ctx context.Context) error {
+func (c *redisCache[V]) Clear(ctx context.Context) error {
 	return c.rdb.FlushAll(ctx).Err()
 }
 
 func NewRedisCache[V any](rdb redis.Client) Cache[string, V] {
-	return &RedisCache[V]{rdb: rdb}
+	return &redisCache[V]{rdb: rdb}
 }
