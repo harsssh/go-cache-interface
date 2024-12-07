@@ -1,4 +1,4 @@
-package isucon_utility
+package isuutil
 
 import (
 	"context"
